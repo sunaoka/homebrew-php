@@ -2,9 +2,7 @@
 
 ## How do I install these formulae?
 
-`brew install sunaoka/tap/<formula>`
-
-Or `brew tap sunaoka/tap` and then `brew install <formula>`.
+`brew install --build-from-source sunaoka/php/php@5.5`
 
 ## Documentation
 
