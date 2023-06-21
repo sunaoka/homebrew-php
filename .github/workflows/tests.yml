@@ -27,6 +27,9 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: brew install-bundler-gems
 
+      - name: openssl@1.0
+        run: brew install sidneys/homebrew/openssl@1.0
+
       - run: brew test-bot --only-cleanup-before
 
       - run: brew test-bot --only-setup
