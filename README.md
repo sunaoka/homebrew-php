@@ -2,7 +2,11 @@
 
 ## How do I install these formulae?
 
-`brew install --build-from-source sunaoka/php/php@5.5`
+```bash
+mkdir $(brew --repository)/Library/Taps/sunaoka
+git clone https://github.com/sunaoka/homebrew-tap.git $(brew --repository)/Library/Taps/sunaoka/homebrew-tap
+brew install --build-from-source sunaoka/tap/php@5.5
+```
 
 ## Documentation
 
