@@ -2,9 +2,10 @@ class PhpAT55 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
   url "https://www.php.net/distributions/php-5.5.38.tar.bz2"
+  version "5.5.38"
   sha256 "473c81ebb2e48ca468caee031762266651843d7227c18a824add9b07b9393e38"
   license "PHP-3.01"
-  revision 1
+  revision 2
 
   # This PHP version is not supported upstream as of 2016-07-21.
   # Although, this was built with back-ported security patches,
@@ -12,14 +13,14 @@ class PhpAT55 < Formula
   # For more details, refer to https://www.php.net/eol.php
   deprecate! date: "2016-07-21", because: :deprecated_upstream
 
-  depends_on "bison" => :build
+  depends_on "bison@2.7" => :build
   depends_on "httpd" => [:build, :test]
   depends_on "pkg-config" => :build
   depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
   depends_on "aspell"
-  depends_on "autoconf"
+  depends_on "autoconf@2.69"
   depends_on "curl"
   depends_on "freetds"
   depends_on "freetype"
@@ -106,13 +107,16 @@ class PhpAT55 < Formula
     # Prevent system pear config from inhibiting pear install
     (config_path/"pear.conf").delete if (config_path/"pear.conf").exist?
 
-    # Prevent homebrew from harcoding path to sed shim in phpize script
+    # Prevent homebrew from hardcoding path to sed shim in phpize script
     ENV["lt_cv_path_SED"] = "sed"
 
     # Each extension that is built on Mojave needs a direct reference to the
     # sdk path or it won't find the headers
-    headers_path = ""
     headers_path = "=#{MacOS.sdk_path_if_needed}/usr" if OS.mac?
+
+    # `_www` only exists on macOS.
+    fpm_user = OS.mac? ? "_www" : "www-data"
+    fpm_group = OS.mac? ? "_www" : "www-data"
 
     args = %W[
       --prefix=#{prefix}
@@ -133,7 +137,6 @@ class PhpAT55 < Formula
       --enable-mysqlnd
       --enable-opcache
       --enable-pcntl
-      --enable-phpdbg
       --enable-shmop
       --enable-soap
       --enable-sockets
@@ -144,8 +147,8 @@ class PhpAT55 < Formula
       --enable-zip
       --with-apxs2=#{Formula["httpd"].opt_bin}/apxs
       --with-curl=#{Formula["curl"].opt_prefix}
-      --with-fpm-user=_www
-      --with-fpm-group=_www
+      --with-fpm-user=#{fpm_user}
+      --with-fpm-group=#{fpm_group}
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
       --with-gd
       --with-gettext=#{Formula["gettext"].opt_prefix}
@@ -157,7 +160,6 @@ class PhpAT55 < Formula
       --with-layout=GNU
       --with-ldap=#{Formula["openldap"].opt_prefix}
       --with-ldap-sasl#{headers_path}
-      --with-libzip
       --with-mhash#{headers_path}
       --with-mysql-sock=/tmp/mysql.sock
       --with-mysqli=mysqlnd
@@ -185,9 +187,7 @@ class PhpAT55 < Formula
       args << "--with-ndbm#{headers_path}"
       args << "--with-xsl#{headers_path}"
       args << "--with-zlib#{headers_path}"
-    end
-
-    if OS.linux?
+    else
       args << "--with-zlib=#{Formula["zlib"].opt_prefix}"
       args << "--with-bzip2=#{Formula["bzip2"].opt_prefix}"
       args << "--with-libedit=#{Formula["libedit"].opt_prefix}"
@@ -328,10 +328,8 @@ class PhpAT55 < Formula
       "Zend OPCache extension not loaded")
     # Test related to libxml2 and
     # https://github.com/Homebrew/homebrew-core/issues/28398
-    if OS.mac?
-      assert_includes MachO::Tools.dylibs("#{bin}/php"),
-              "#{Formula["libpq"].opt_lib}/libpq.5.dylib"
-    end
+    assert_includes (bin/"php").dynamically_linked_libraries,
+                    (Formula["libpq"].opt_lib/shared_library("libpq", 5)).to_s
 
     system "#{sbin}/php-fpm", "-t"
     system "#{bin}/phpdbg", "-V"
@@ -340,14 +338,8 @@ class PhpAT55 < Formula
     refute_match(/^snmp$/, shell_output("#{bin}/php -m"),
       "SNMP extension doesn't work reliably with Homebrew on High Sierra")
     begin
-      require "socket"
-
-      server = TCPServer.new(0)
-      port = server.addr[1]
-      server_fpm = TCPServer.new(0)
-      port_fpm = server_fpm.addr[1]
-      server.close
-      server_fpm.close
+      port = free_port
+      port_fpm = free_port
 
       expected_output = /^Hello world!$/
       (testpath/"index.php").write <<~EOS
