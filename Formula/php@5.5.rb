@@ -60,6 +60,11 @@ class PhpAT55 < Formula
     ENV.append "CFLAGS", "-DU_DEFINE_FALSE_AND_TRUE=1"
     ENV.append "CXXFLAGS", "-DU_DEFINE_FALSE_AND_TRUE=1"
 
+    # Add include directory
+    ENV.append "CPPFLAGS", "-I./main"
+    ENV.append "CPPFLAGS", "-I./TSRM"
+    ENV.append "CPPFLAGS", "-I./Zend"
+
     if OS.mac?
       # Use OpenSSL
       ENV.append "EXTRA_LIBS", "#{Formula["openssl@1.0"].opt_prefix}/lib/libssl.dylib"
@@ -199,7 +204,7 @@ class PhpAT55 < Formula
     end
 
     system "./configure", *args
-    system "make", "-j"
+    system "make"
     system "make", "install"
 
     # Allow pecl to install outside of Cellar
