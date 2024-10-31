@@ -26,7 +26,7 @@ class PhpAT55 < Formula
   depends_on "freetype"
   depends_on "gettext"
   depends_on "gmp"
-  depends_on "icu4c"
+  depends_on "icu4c@74"
   depends_on "jpeg"
   depends_on "libiconv"
   depends_on "libpng"
