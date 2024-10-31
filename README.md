@@ -3,8 +3,7 @@
 ## How do I install these formulae?
 
 ```bash
-curl -LO https://github.com/rbenv/homebrew-tap/raw/refs/heads/master/Formula/openssl@1.0.rb
-brew install --debug --formula --build-from-source ./openssl@1.0.rb
+brew install rbenv/tap/openssl@1.0
 brew install --debug --build-from-source sunaoka/php/php@5.5
 ```
 
