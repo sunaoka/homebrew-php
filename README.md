@@ -4,7 +4,7 @@
 
 ```bash
 brew install sidneys/homebrew/openssl@1.0
-brew install --build-from-source sunaoka/php/php@5.5
+brew install --debug --build-from-source sunaoka/php/php@5.5
 ```
 
 ## Documentation
