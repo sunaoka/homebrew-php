@@ -5,7 +5,7 @@ class PhpAT55 < Formula
   version "5.5.38"
   sha256 "473c81ebb2e48ca468caee031762266651843d7227c18a824add9b07b9393e38"
   license "PHP-3.01"
-  revision 2
+  revision 3
 
   # This PHP version is not supported upstream as of 2016-07-21.
   # Although, this was built with back-ported security patches,
